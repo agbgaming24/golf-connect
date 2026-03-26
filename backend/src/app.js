@@ -30,7 +30,7 @@ const corsOptions = {
 
 app.use(express.json());
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/draws', require('./routes/draw.routes'));
