@@ -5,8 +5,8 @@ import { authService } from '@/services/authService';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, charityId?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, charityId?: string) => Promise<User>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -72,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const res = await authService.login({ email, password });
       localStorage.setItem('auth_token', res.data.token);
       setUser(res.data.user);
+      return res.data.user;
     } finally {
       setIsLoading(false);
     }
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const res = await authService.register({ name, email, password, charityId });
       localStorage.setItem('auth_token', res.data.token);
       setUser(res.data.user);
+      return res.data.user;
     } finally {
       setIsLoading(false);
     }

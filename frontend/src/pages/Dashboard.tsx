@@ -42,6 +42,7 @@ const StatCard = ({ icon: Icon, label, value, accent }: { icon: LucideIcon; labe
 
 const Dashboard = () => {
   const { user, isAuthenticated } = useAuth();
+  const isAdmin = String(user?.role || '').trim().toLowerCase() === 'admin';
   const location = useLocation();
   const [scores, setScores] = useState<Score[]>([]);
   const [charities, setCharities] = useState<Charity[]>([]);
@@ -102,6 +103,7 @@ const Dashboard = () => {
   }, [location.state]);
 
   if (!isAuthenticated) return <Navigate to="/login" />;
+  if (isAdmin) return <Navigate to="/admin" replace />;
 
   const userCharity = charities.find((c) => c.id === user?.charityId);
   const avgScore = scores.length ? (scores.reduce((a, s) => a + s.score, 0) / scores.length).toFixed(1) : '—';

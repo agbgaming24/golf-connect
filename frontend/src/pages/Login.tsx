@@ -24,8 +24,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const authenticatedUser = await login(email, password);
+      const isAdmin = String(authenticatedUser?.role || '').trim().toLowerCase() === 'admin';
+      navigate(isAdmin ? '/admin' : '/dashboard');
     } catch (err: unknown) {
       const message = (err as ErrorWithResponse)?.response?.data?.message || 'Login failed. Please try again.';
       toast.error(message);
