@@ -3,10 +3,21 @@ import { Charity } from '@/types';
 import { normalizeCharity } from '@/lib/normalizers';
 
 type ApiRecord = Record<string, unknown>;
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getAllWithRetry = async () => {
+  try {
+    return await api.get<ApiRecord[]>('/charities');
+  } catch (error) {
+    // Render free instances can cold-start and time out on the first request.
+    await sleep(1500);
+    return api.get<ApiRecord[]>('/charities');
+  }
+};
 
 export const charityService = {
   getAll: () =>
-    api.get<ApiRecord[]>('/charities').then((res) => ({
+    getAllWithRetry().then((res) => ({
       ...res,
       data: (res.data || []).map(normalizeCharity),
     })),
