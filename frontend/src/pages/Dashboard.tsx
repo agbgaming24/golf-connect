@@ -112,11 +112,20 @@ const Dashboard = () => {
   const nextDraw = draws.find((d) => d.status === 'upcoming');
   const sameActivePlanSelected = subscription?.status === 'active' && subscription?.plan === selectedPlan;
 
+  const isScoreInRange = (value: number) => value >= 1 && value <= 45;
+
   const handleAddScore = async () => {
     if (!newScore.score || !newScore.course) return;
+
+    const parsedScore = parseInt(newScore.score, 10);
+    if (!Number.isFinite(parsedScore) || !isScoreInRange(parsedScore)) {
+      window.alert('Score value can be between 1 and 45.');
+      return;
+    }
+
     try {
       const res = await scoreService.createScore({
-        score: parseInt(newScore.score),
+        score: parsedScore,
         course: newScore.course,
       });
       setScores((prev) => [res.data, ...prev].slice(0, 5));
@@ -246,7 +255,23 @@ const Dashboard = () => {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <Label>Score</Label>
-                    <Input type="number" min={1} max={200} step={1} placeholder="72" value={newScore.score} onChange={(e) => setNewScore({ ...newScore, score: e.target.value })} className="mt-1" />
+                    <Input
+                      type="number"
+                      min={1}
+                      max={45}
+                      step={1}
+                      placeholder="1-45"
+                      value={newScore.score}
+                      onChange={(e) => setNewScore({ ...newScore, score: e.target.value })}
+                      onBlur={() => {
+                        if (!newScore.score) return;
+                        const parsedScore = parseInt(newScore.score, 10);
+                        if (!Number.isFinite(parsedScore) || !isScoreInRange(parsedScore)) {
+                          window.alert('Score value can be between 1 and 45.');
+                        }
+                      }}
+                      className="mt-1"
+                    />
                   </div>
                   <div>
                     <Label>Course</Label>
