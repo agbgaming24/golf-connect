@@ -1,5 +1,8 @@
 const sql = require('../config/db');
 
+const MIN_SCORE = 1;
+const MAX_SCORE = 200;
+
 let cachedScoreColumns = null;
 
 const getScoreColumns = async () => {
@@ -67,9 +70,10 @@ exports.addScore = async (req, res) => {
   try {
     const userId = req.user.id;
     const { score, course, played_at } = req.body;
+    const numericScore = Number(score);
 
-    if (score < 1 || score > 45) {
-      return res.status(400).json({ message: 'Invalid score' });
+    if (!Number.isInteger(numericScore) || numericScore < MIN_SCORE || numericScore > MAX_SCORE) {
+      return res.status(400).json({ message: `Score must be an integer between ${MIN_SCORE} and ${MAX_SCORE}` });
     }
 
     const existing = await sql`
@@ -85,22 +89,22 @@ exports.addScore = async (req, res) => {
     if (cols.has('course') && cols.has('verified')) {
       inserted = await sql`
         INSERT INTO scores (user_id, score, played_at, course, verified)
-        VALUES (${userId}, ${score}, ${playedAt}, ${course || 'Unknown Course'}, 0)
+        VALUES (${userId}, ${numericScore}, ${playedAt}, ${course || 'Unknown Course'}, 0)
         RETURNING id`;
     } else if (cols.has('course')) {
       inserted = await sql`
         INSERT INTO scores (user_id, score, played_at, course)
-        VALUES (${userId}, ${score}, ${playedAt}, ${course || 'Unknown Course'})
+        VALUES (${userId}, ${numericScore}, ${playedAt}, ${course || 'Unknown Course'})
         RETURNING id`;
     } else if (cols.has('verified')) {
       inserted = await sql`
         INSERT INTO scores (user_id, score, played_at, verified)
-        VALUES (${userId}, ${score}, ${playedAt}, 0)
+        VALUES (${userId}, ${numericScore}, ${playedAt}, 0)
         RETURNING id`;
     } else {
       inserted = await sql`
         INSERT INTO scores (user_id, score, played_at)
-        VALUES (${userId}, ${score}, ${playedAt})
+        VALUES (${userId}, ${numericScore}, ${playedAt})
         RETURNING id`;
     }
 
@@ -108,7 +112,7 @@ exports.addScore = async (req, res) => {
       data: mapScore({
         id: inserted[0]?.id,
         user_id: userId,
-        score,
+        score: numericScore,
         course: course || 'Unknown Course',
         played_at: playedAt,
         verified: 0,

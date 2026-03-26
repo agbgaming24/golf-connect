@@ -246,7 +246,7 @@ const Dashboard = () => {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <Label>Score</Label>
-                    <Input type="number" placeholder="72" value={newScore.score} onChange={(e) => setNewScore({ ...newScore, score: e.target.value })} className="mt-1" />
+                    <Input type="number" min={1} max={200} step={1} placeholder="72" value={newScore.score} onChange={(e) => setNewScore({ ...newScore, score: e.target.value })} className="mt-1" />
                   </div>
                   <div>
                     <Label>Course</Label>
@@ -278,7 +278,7 @@ const Dashboard = () => {
                     )}
                     {editingId === s.id ? (
                       <div className="flex items-center gap-1">
-                        <Input className="w-16 h-8" value={editScore} onChange={(e) => setEditScore(e.target.value)} type="number" />
+                        <Input className="w-16 h-8" value={editScore} onChange={(e) => setEditScore(e.target.value)} type="number" min={1} max={200} step={1} />
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEditSave(s.id)}><Check className="h-4 w-4" /></Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingId(null)}><X className="h-4 w-4" /></Button>
                       </div>

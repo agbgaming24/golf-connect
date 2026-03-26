@@ -1,4 +1,7 @@
 const sql = require('../config/db');
+
+const MIN_SCORE = 1;
+const MAX_SCORE = 200;
 const drawService = require('../services/draw.service');
 const drawModel = require('../models/draw.model');
 const charityModel = require('../models/charity.model');
@@ -93,14 +96,15 @@ exports.updateUserProfile = async (req, res) => {
 exports.updateUserScore = async (req, res) => {
   try {
     const { score, playedAt } = req.body;
+    const numericScore = Number(score);
 
-    if (!Number.isInteger(Number(score)) || Number(score) < 1 || Number(score) > 45) {
-      return res.status(400).json({ message: 'Score must be an integer between 1 and 45' });
+    if (!Number.isInteger(numericScore) || numericScore < MIN_SCORE || numericScore > MAX_SCORE) {
+      return res.status(400).json({ message: `Score must be an integer between ${MIN_SCORE} and ${MAX_SCORE}` });
     }
 
     const result = await sql`
       UPDATE scores
-      SET score = ${Number(score)}, played_at = COALESCE(${playedAt || null}, played_at)
+      SET score = ${numericScore}, played_at = COALESCE(${playedAt || null}, played_at)
       WHERE id = ${req.params.scoreId} AND user_id = ${req.params.userId}
       RETURNING id`;
 
