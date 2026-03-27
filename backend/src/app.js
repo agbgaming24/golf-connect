@@ -36,6 +36,10 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 
+app.get('/api/health', (_req, res) => {
+	res.json({ ok: true });
+});
+
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/draws', require('./routes/draw.routes'));
 app.use('/api/charities', require('./routes/charity.routes'));
